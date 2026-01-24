@@ -2,7 +2,8 @@ from tkinter import *
 import pandas as pd
 import random
 
-BG = "#91C2AF"
+BG = "#E6D8C3"
+CHECK_MARKS = "#FF5555"
 T_FONT = ('Times New Roman', 40, 'italic')
 W_FONT = ('Times New Roman', 60, 'bold')
 
@@ -12,6 +13,7 @@ words_list = data.to_dict(orient='records')
 
 current_card = {}
 flip_timer = None
+marks = []
 
 def next_card():
     global current_card, flip_timer
@@ -34,6 +36,19 @@ def flip_card():
     canvas.itemconfig(title, text="English", fill="white")
     canvas.itemconfig(word, text=current_card["English"], fill="white")
 
+def update_score():
+    score_label.config(text=''.join(marks))
+
+def pressed_right():
+    marks.append('✓')
+    update_score()
+    next_card()
+
+def pressed_wrong():
+    marks.append('✗')
+    update_score()
+    next_card()
+
 
 window = Tk()
 window.title("Flashcard")
@@ -50,16 +65,19 @@ canvas.grid(row=0, column=0, columnspan=3)
 title = canvas.create_text(400, 150, text="French", font=T_FONT)
 word = canvas.create_text(400, 263, text="trouve", font=W_FONT)
 
+# Labels (check marks)
+score_label = Label(window, text='', font=T_FONT, bg=BG, fg=CHECK_MARKS)
+score_label.grid(row=1, column=1)
+
 # Buttons
 correct = PhotoImage(file="../images/right.png").subsample(15, 15)
-correct_button = Button(window, image=correct, bd=0, highlightthickness=0,
-                        bg=BG, activebackground=BG, command=next_card)
+correct_button = Button(window, image=correct, bd=0, highlightthickness=0, bg=BG, activebackground=BG, command=pressed_right)
 correct_button.grid(row=1, column=2)
 
 wrong = PhotoImage(file="../images/wrong.png").subsample(15, 15)
-wrong_button = Button(window, image=wrong, bd=0, highlightthickness=0,
-                      bg=BG, activebackground=BG, command=next_card)
+wrong_button = Button(window, image=wrong, bd=0, highlightthickness=0, bg=BG, activebackground=BG, command=pressed_wrong)
 wrong_button.grid(row=1, column=0)
 
+update_score()
 next_card()
 window.mainloop()
